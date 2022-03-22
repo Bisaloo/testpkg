@@ -39,7 +39,7 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      - uses: Bisaloo/actions/setup-r-dependencies@v2
+      - uses: Bisaloo/actions/setup-r-dependencies@disable-cache-option
         with:
           cache: false
           extra-packages: any::rcmdcheck
