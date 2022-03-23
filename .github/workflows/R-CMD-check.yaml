@@ -25,7 +25,7 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: Bisaloo/actions/setup-r-dependencies@disable-cache-option
+      - uses: Bisaloo/actions/setup-r-dependencies@f4a22e74b7856a66b20aa93365141a2fbb80810d
         with:
           cache: false
           extra-packages: any::rcmdcheck
