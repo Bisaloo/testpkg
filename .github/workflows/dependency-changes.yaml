@@ -36,7 +36,8 @@ jobs:
         with:
           packages: any::pak, glue, gh
 
-      - shell: Rscript {0}
+      - name: Analyze dependency changes
+        shell: Rscript {0}
         run: |
           deps_base <- pak::pkg_deps("${{ github.repository }}@${{ github.base_ref }}", dependencies = TRUE) |>
             subset(!directpkg) |>
@@ -51,7 +52,7 @@ jobs:
           deps_removed <- deps_base |>
             subset(!ref %in% deps_head$ref)
 
-          if (nrow(deps_added) + nrow(deps_removed) > 0)) {
+          if (nrow(deps_added) + nrow(deps_removed) > 0) {
 
             msg <- glue::glue(
               .sep = "\n",
@@ -63,7 +64,7 @@ jobs:
             )
 
             gh::gh(
-              "/repos/{{repo}/issues/{issue_number}/comments",
+              "/repos/{repo}/issues/{issue_number}/comments",
               repo = "${{ github.repository }}",
               issue_number = "${{ github.event.number }}",
               body = msg
