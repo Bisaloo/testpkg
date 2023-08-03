@@ -7,7 +7,7 @@
 # rcmdcheck::rcmdcheck()
 # ```
 on:
-  pull_request:
+  pull_request_target:
     paths:
       - 'DESCRIPTION'
 
@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      issues: write
     steps:
       - name: Checkout repos
         uses: actions/checkout@v3
@@ -65,10 +67,10 @@ jobs:
               "- Removes {length(unique(deps_removed$sysreqs))} existing system dependencies"
             )
 
-            message("Posting results as a pull request comment".)
+            message("Posting results as a pull request comment.")
 
             gh::gh(
-              "/repos/{repo}/issues/{issue_number}/comments",
+              "POST /repos/{repo}/issues/{issue_number}/comments",
               repo = "${{ github.repository }}",
               issue_number = "${{ github.event.number }}",
               body = msg
