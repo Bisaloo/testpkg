@@ -36,37 +36,38 @@ jobs:
         with:
           packages: any::pak, glue, gh
 
-      - run: |
-        deps_base <- pak::pkg_deps("${{ github.repository }}@${{ github.base_ref }}", dependencies = TRUE) |>
-          subset(!directpkg) |>
-          subset(is.na(priority))
-        deps_head <- pak::pkg_deps("${{ github.repository }}@${{ github.head_ref }}", dependencies = TRUE) |>
-          subset(!directpkg) |>
-          subset(is.na(priority))
+      - shell: Rscript {0}
+        run: |
+          deps_base <- pak::pkg_deps("${{ github.repository }}@${{ github.base_ref }}", dependencies = TRUE) |>
+            subset(!directpkg) |>
+            subset(is.na(priority))
+          deps_head <- pak::pkg_deps("${{ github.repository }}@${{ github.head_ref }}", dependencies = TRUE) |>
+            subset(!directpkg) |>
+            subset(is.na(priority))
 
-        deps_added <- deps_head |>
-          subset(!ref %in% deps_base$ref)
+          deps_added <- deps_head |>
+            subset(!ref %in% deps_base$ref)
 
-        deps_removed <- deps_base |>
-          subset(!ref %in% deps_head$ref)
+          deps_removed <- deps_base |>
+            subset(!ref %in% deps_head$ref)
 
-        if (nrow(deps_added) + nrow(deps_removed) > 0)) {
+          if (nrow(deps_added) + nrow(deps_removed) > 0)) {
 
-          msg <- glue::glue(
-            .sep = "\n",
-            "This pull request:",
-            "- Adds {nrow(deps_added)} new dependencies (direct and indirect)",
-            "- Adds {length(unique(deps_added$sysreqs))} new system dependencies",
-            "- Removes {nrow(deps_removed)} existing dependencies (direct and indirect)",
-            "- Removes {length(unique(deps_removed$sysreqs))} existing system dependencies"
-          )
+            msg <- glue::glue(
+              .sep = "\n",
+              "This pull request:",
+              "- Adds {nrow(deps_added)} new dependencies (direct and indirect)",
+              "- Adds {length(unique(deps_added$sysreqs))} new system dependencies",
+              "- Removes {nrow(deps_removed)} existing dependencies (direct and indirect)",
+              "- Removes {length(unique(deps_removed$sysreqs))} existing system dependencies"
+            )
 
-          gh::gh(
-            "/repos/{{repo}/issues/{issue_number}/comments",
-            repo = "${{ github.repository }}",
-            issue_number = "${{ github.event.number }}",
-            body = msg
-          )
+            gh::gh(
+              "/repos/{{repo}/issues/{issue_number}/comments",
+              repo = "${{ github.repository }}",
+              issue_number = "${{ github.event.number }}",
+              body = msg
+            )
 
-        }
-      shell: Rscript {0}
+          }
+
