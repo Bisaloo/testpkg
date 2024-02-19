@@ -7,7 +7,7 @@
 # rcmdcheck::rcmdcheck()
 # ```
 on:
-  pull_request_target:
+  pull_request:
     paths:
       - 'DESCRIPTION'
 
@@ -23,11 +23,9 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     permissions:
-      issues: write
+      pull-requests:
+        write
     steps:
-      - name: Checkout repos
-        uses: actions/checkout@v3
-
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
         with:
@@ -44,7 +42,9 @@ jobs:
           deps_base <- pak::pkg_deps("${{ github.repository }}@${{ github.base_ref }}", dependencies = TRUE) |>
             subset(!directpkg) |>
             subset(is.na(priority))
-          deps_head <- pak::pkg_deps("${{ github.repository }}@${{ github.head_ref }}", dependencies = TRUE) |>
+          # We install from PR number rather than branch to deal with the case
+          # of PR coming from forks
+          deps_head <- pak::pkg_deps("${{ github.repository }}#${{ github.event.number }}", dependencies = TRUE) |>
             subset(!directpkg) |>
             subset(is.na(priority))
 
